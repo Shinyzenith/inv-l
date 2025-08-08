@@ -19,7 +19,7 @@ const defaultFragmentShader = `
     }
   `;
 
-function Shader() {
+function Shader({ password, onAuthFailed }) {
   const [shaderInput, setShaderInput] = useState('');
   const [currentShaderCode, setCurrentShaderCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -169,9 +169,17 @@ function Shader() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ prompt: shaderInput }),
+        body: JSON.stringify({ prompt: shaderInput, password }),
       });
       
+      if (response.status === 401) {
+        alert('Incorrect password.');
+        if (onAuthFailed) {
+          onAuthFailed();
+        }
+        return;
+      }
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
